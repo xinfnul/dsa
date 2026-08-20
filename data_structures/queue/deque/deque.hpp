@@ -38,8 +38,15 @@ public:
 
 template <typename T>
 Deque<T>::Deque(std::size_t capacity)
-    : data(new T[capacity]), cap(capacity), front_index(0), rear_index(-1),
-      count(0) {}
+    : data(nullptr), cap(capacity), front_index(0), rear_index(-1),
+      count(0) 
+{
+  if (capacity == 0) {
+    throw std::invalid_argument("Deque capacity must be greater than zero");
+  }
+
+  data = new T[capacity];
+}
 
 template <typename T> Deque<T>::~Deque() { delete[] data; }
 
@@ -50,8 +57,14 @@ template <typename T> void Deque<T>::insert_front(const T &value) {
     throw std::overflow_error("Deque is full: cannot insert at front");
   }
 
-  front_index =
+  if (is_empty()) {
+    front_index = 0;
+    rear_index = 0;
+  } else {
+    front_index =
       (front_index - 1 + static_cast<int>(cap)) % static_cast<int>(cap);
+  }
+
   data[front_index] = value;
   count++;
 }
@@ -72,7 +85,16 @@ template <typename T> T Deque<T>::delete_front() {
   }
 
   T value = data[front_index];
+
+  if (count == 1) {
+    front_index = 0;
+    rear_index = -1;
+    count = 0;
+    return value;
+  }
+  
   front_index = (front_index + 1) % static_cast<int>(cap);
+  
   count--;
 
   return value;
@@ -84,7 +106,16 @@ template <typename T> T Deque<T>::delete_rear() {
   }
 
   T value = data[rear_index];
+
+  if (count == 1) {
+    front_index = 0;
+    rear_index = -1;
+    count = 0;
+    return value;
+  }
+  
   rear_index = (rear_index - 1 + static_cast<int>(cap)) % static_cast<int>(cap);
+  
   count--;
 
   return value;
