@@ -369,3 +369,298 @@ impl<T: std::fmt::Display> std::fmt::Display for List<T> {
         Ok(())
     }
 }
+
+// ----------------------------------------------------------------------------------
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new_list_is_empty() {
+        let list: List<i32> = List::new();
+
+        assert!(list.is_empty());
+        assert_eq!(list.len(), 0);
+        assert_eq!(list.at(0), None);
+    }
+
+    #[test]
+    fn push_front_adds_in_correct_order() {
+        let mut list = List::new();
+
+        list.push_front(1000);
+        list.push_front(100);
+        list.push_front(10);
+
+        assert_eq!(list.len(), 3);
+        assert_eq!(list.at(0), Some(10));
+        assert_eq!(list.at(1), Some(100));
+        assert_eq!(list.at(2), Some(1000));
+    }
+
+    #[test]
+    fn push_back_adds_in_correct_order() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+        list.push_back(1000);
+
+        assert_eq!(list.len(), 3);
+        assert_eq!(list.at(0), Some(10));
+        assert_eq!(list.at(1), Some(100));
+        assert_eq!(list.at(2), Some(1000));
+    }
+
+    #[test]
+    fn push_front_and_push_back_work_together() {
+        let mut list = List::new();
+
+        list.push_back(100);
+        list.push_front(10);
+        list.push_back(1000);
+        list.push_front(0);
+
+        assert_eq!(list.len(), 4);
+        assert_eq!(list.at(0), Some(0));
+        assert_eq!(list.at(1), Some(10));
+        assert_eq!(list.at(2), Some(100));
+        assert_eq!(list.at(3), Some(1000));
+    }
+
+    #[test]
+    fn pop_front_removes_first_element() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+        list.push_back(1000);
+
+        assert!(list.pop_front());
+        assert_eq!(list.len(), 2);
+        assert_eq!(list.at(0), Some(100));
+        assert_eq!(list.at(1), Some(1000));
+
+        assert!(list.pop_front());
+        assert!(list.pop_front());
+
+        assert!(list.is_empty());
+        assert_eq!(list.len(), 0);
+    }
+
+    #[test]
+    fn pop_back_removes_last_element() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+        list.push_back(1000);
+
+        assert!(list.pop_back());
+        assert_eq!(list.len(), 2);
+        assert_eq!(list.at(0), Some(10));
+        assert_eq!(list.at(1), Some(100));
+
+        assert!(list.pop_back());
+        assert!(list.pop_back());
+
+        assert!(list.is_empty());
+        assert_eq!(list.len(), 0);
+    }
+
+    #[test]
+    fn popping_empty_list_returns_false() {
+        let mut list: List<i32> = List::new();
+
+        assert!(!list.pop_front());
+        assert!(!list.pop_back());
+        assert_eq!(list.len(), 0);
+    }
+
+    #[test]
+    fn insert_at_beginning_middle_and_end() {
+        let mut list = List::new();
+
+        list.push_back(0);
+        list.push_back(1000);
+
+        assert!(list.insert_at(1, 10));
+        assert!(list.insert_at(2, 100));
+        assert!(list.insert_at(4, 10000));
+
+        assert_eq!(list.len(), 5);
+        assert_eq!(list.at(0), Some(0));
+        assert_eq!(list.at(1), Some(10));
+        assert_eq!(list.at(2), Some(100));
+        assert_eq!(list.at(3), Some(1000));
+        assert_eq!(list.at(4), Some(10000));
+    }
+
+    #[test]
+    fn insert_at_invalid_index_returns_false() {
+        let mut list = List::new();
+
+        list.push_back(0);
+        list.push_back(1000);
+
+        assert!(!list.insert_at(3, 98));
+        assert_eq!(list.len(), 2);
+        assert_eq!(list.at(0), Some(0));
+        assert_eq!(list.at(1), Some(1000));
+    }
+
+    #[test]
+    fn remove_at_beginning_and_end() {
+        let mut list = List::new();
+
+        for value in 1..=5 {
+            list.push_back(value);
+        }
+
+        assert!(list.remove_at(1));
+        assert_eq!(list.at(0), Some(1));
+
+        assert!(list.remove_at(2));
+        assert_eq!(list.at(0), Some(1));
+        assert_eq!(list.at(1), Some(3));
+
+        assert!(list.remove_at(list.len() - 1));
+        assert_eq!(list.at(0), Some(1));
+        assert_eq!(list.at(1), Some(3));
+    }
+
+    #[test]
+    fn remove_at_invalid_index_returns_false() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+
+        assert!(!list.remove_at(3));
+        assert_eq!(list.len(), 2);
+        assert_eq!(list.at(0), Some(10));
+        assert_eq!(list.at(1), Some(100));
+    }
+
+    #[test]
+    fn remove_value_removes_first_match() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+        list.push_back(1000);
+
+        assert!(list.remove_value(&1000));
+
+        assert_eq!(list.len(), 2);
+        assert_eq!(list.at(0), Some(10));
+        assert_eq!(list.at(1), Some(100));
+    }
+
+    #[test]
+    fn remove_value_handles_head_and_tail() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+        list.push_back(1000);
+
+        assert!(list.remove_value(&10));
+        assert_eq!(list.at(0), Some(100));
+
+        assert!(list.remove_value(&1000));
+        assert_eq!(list.at(0), Some(100));
+
+        assert_eq!(list.len(), 1);
+    }
+
+    #[test]
+    fn remove_missing_value_returns() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+        list.push_back(1000);
+
+        assert!(!list.remove_value(&98));
+
+        assert_eq!(list.len(), 3);
+        assert_eq!(list.at(0), Some(10));
+        assert_eq!(list.at(1), Some(100));
+        assert_eq!(list.at(2), Some(1000));
+    }
+
+    #[test]
+    fn find_returns_first_matching_index() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+        list.push_back(1000);
+
+        assert_eq!(list.find(&10), Some(0));
+        assert_eq!(list.find(&100), Some(1));
+        assert_eq!(list.find(&1000), Some(2));
+        assert_eq!(list.find(&98), None);
+    }
+
+    #[test]
+    fn at_returns_none_for_invalid_index() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+
+        assert_eq!(list.at(0), Some(10));
+        assert_eq!(list.at(1), Some(100));
+        assert_eq!(list.at(3), None);
+        assert_eq!(list.at(usize::MAX), None);
+    }
+
+    #[test]
+    fn clear_empties_the_list() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+
+        list.clear();
+
+        assert!(list.is_empty());
+        assert_eq!(list.len(), 0);
+        assert_eq!(list.at(0), None);
+
+        list.push_back(98);
+
+        assert_eq!(list.len(), 1);
+        assert_eq!(list.at(0), Some(98));
+    }
+
+    #[test]
+    fn reverse_changes_element_order() {
+        let mut list = List::new();
+
+        list.push_back(10);
+        list.push_back(100);
+
+        list.reverse();
+
+        assert_eq!(list.len(), 2);
+        assert_eq!(list.at(0), Some(100));
+        assert_eq!(list.at(1), Some(10));
+    }
+
+    #[test]
+    fn display_formats_list_correctly() {
+        let mut list = List::new();
+
+        list.push_back(1);
+        list.push_back(3);
+        list.push_back(5);
+        list.push_back(7);
+        list.push_back(9);
+
+        assert_eq!(format!("{}", list), "1 <-> 3 <-> 5 <-> 7 <-> 9");
+    }
+}
