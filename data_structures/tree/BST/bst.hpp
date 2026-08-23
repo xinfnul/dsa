@@ -1,11 +1,11 @@
-#ifndef TREE_HPP
-#define TREE_HPP
+#ifndef BST_HPP
+#define BST_HPP
 
 #include <memory>
 #include <queue>
 #include <vector>
 
-template <typename T> class BinaryTree {
+template <typename T> class BST {
 private:
   struct Node {
     T data;
@@ -30,11 +30,11 @@ private:
   void postorder_helper(const Node *node, std::vector<T> &result) const;
 
 public:
-  BinaryTree();
-  BinaryTree(const BinaryTree &other) = delete;
-  BinaryTree &operator=(const BinaryTree &other) = delete;
+  BST();
+  BST(const BST &other) = delete;
+  BST &operator=(const BST &other) = delete;
 
-  ~BinaryTree() = default;
+  ~BST() = default;
 
   void insert(const T &value);
   bool contains(const T &value) const;
@@ -49,14 +49,13 @@ public:
   std::vector<T> levelorder() const;
 };
 
-template <typename T>
-BinaryTree<T>::BinaryTree() : root(nullptr), node_count(0) {}
+template <typename T> BST<T>::BST() : root(nullptr), node_count(0) {}
 
 // -------------------------------------------------------------------------------
 
 template <typename T>
-typename BinaryTree<T>::Node *
-BinaryTree<T>::insert_helper(std::unique_ptr<Node> &node, const T &value) {
+typename BST<T>::Node *BST<T>::insert_helper(std::unique_ptr<Node> &node,
+                                             const T &value) {
   if (!node) {
     node = std::make_unique<Node>(value);
     node_count++;
@@ -72,14 +71,14 @@ BinaryTree<T>::insert_helper(std::unique_ptr<Node> &node, const T &value) {
   return node.get();
 }
 
-template <typename T> void BinaryTree<T>::insert(const T &value) {
+template <typename T> void BST<T>::insert(const T &value) {
   insert_helper(root, value);
 }
 
 // -------------------------------------------------------------------------------
 
 template <typename T>
-bool BinaryTree<T>::contains_helper(const Node *node, const T &value) const {
+bool BST<T>::contains_helper(const Node *node, const T &value) const {
   if (!node) {
     return false;
   }
@@ -95,13 +94,13 @@ bool BinaryTree<T>::contains_helper(const Node *node, const T &value) const {
   return contains_helper(node->right.get(), value);
 }
 
-template <typename T> bool BinaryTree<T>::contains(const T &value) const {
+template <typename T> bool BST<T>::contains(const T &value) const {
   return contains_helper(root.get(), value);
 }
 
 // -------------------------------------------------------------------------------
 
-template <typename T> int BinaryTree<T>::height_helper(const Node *node) const {
+template <typename T> int BST<T>::height_helper(const Node *node) const {
   if (!node) {
     return -1;
   }
@@ -112,19 +111,17 @@ template <typename T> int BinaryTree<T>::height_helper(const Node *node) const {
   return 1 + std::max(left_height, right_height);
 }
 
-template <typename T> int BinaryTree<T>::height() const {
+template <typename T> int BST<T>::height() const {
   return height_helper(root.get());
 }
 
 // -------------------------------------------------------------------------------
 
-template <typename T> size_t BinaryTree<T>::size() const { return node_count; }
+template <typename T> size_t BST<T>::size() const { return node_count; }
 
-template <typename T> bool BinaryTree<T>::empty() const {
-  return root == nullptr;
-}
+template <typename T> bool BST<T>::empty() const { return root == nullptr; }
 
-template <typename T> void BinaryTree<T>::clear() {
+template <typename T> void BST<T>::clear() {
   root.reset();
   node_count = 0;
 }
@@ -132,8 +129,7 @@ template <typename T> void BinaryTree<T>::clear() {
 // -------------------------------------------------------------------------------
 
 template <typename T>
-void BinaryTree<T>::inorder_helper(const Node *node,
-                                   std::vector<T> &result) const {
+void BST<T>::inorder_helper(const Node *node, std::vector<T> &result) const {
   if (!node) {
     return;
   }
@@ -144,8 +140,7 @@ void BinaryTree<T>::inorder_helper(const Node *node,
 }
 
 template <typename T>
-void BinaryTree<T>::preorder_helper(const Node *node,
-                                    std::vector<T> &result) const {
+void BST<T>::preorder_helper(const Node *node, std::vector<T> &result) const {
   if (!node) {
     return;
   }
@@ -156,8 +151,7 @@ void BinaryTree<T>::preorder_helper(const Node *node,
 }
 
 template <typename T>
-void BinaryTree<T>::postorder_helper(const Node *node,
-                                     std::vector<T> &result) const {
+void BST<T>::postorder_helper(const Node *node, std::vector<T> &result) const {
   if (!node) {
     return;
   }
@@ -167,7 +161,7 @@ void BinaryTree<T>::postorder_helper(const Node *node,
   result.push_back(node->data);
 }
 
-template <typename T> std::vector<T> BinaryTree<T>::inorder() const {
+template <typename T> std::vector<T> BST<T>::inorder() const {
   std::vector<T> result;
 
   inorder_helper(root.get(), result);
@@ -175,19 +169,19 @@ template <typename T> std::vector<T> BinaryTree<T>::inorder() const {
   return result;
 }
 
-template <typename T> std::vector<T> BinaryTree<T>::preorder() const {
+template <typename T> std::vector<T> BST<T>::preorder() const {
   std::vector<T> result;
   preorder_helper(root.get(), result);
   return result;
 }
 
-template <typename T> std::vector<T> BinaryTree<T>::postorder() const {
+template <typename T> std::vector<T> BST<T>::postorder() const {
   std::vector<T> result;
   postorder_helper(root.get(), result);
   return result;
 }
 
-template <typename T> std::vector<T> BinaryTree<T>::levelorder() const {
+template <typename T> std::vector<T> BST<T>::levelorder() const {
   std::vector<T> result;
 
   if (!root) {
